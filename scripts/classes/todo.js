@@ -5,12 +5,18 @@ function ToDo(data){
     if (data){
         this.validate(data);
 
-        this.date = !isNaN(data.date) ? new Date(data.date) : data.date;
+        if (!data.date)
+            this.date = new Date();
+        else
+            this.date = data.date instanceof Date ? data.date : new Date(data.date);
+
         this.text = data.text;
         this.isDone = !!data.isDone;
     }
-    else
+    else {
         this.isDone = false;
+        this.date = new Date();
+    }
 }
 
 ToDo.prototype.validate = function(data){

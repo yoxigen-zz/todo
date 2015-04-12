@@ -1,0 +1,50 @@
+<template id="todoItemTemplate">
+    <style>
+        .todo-item-checkbox{
+            float: left;
+            padding: 1rem;
+        }
+        .todo-item-date{
+            opacity: .5;
+        }
+    </style>
+    <div class="todo-item">
+        <div class="todo-item-checkbox">
+            <input type="checkbox" />
+        </div>
+        <p class="todo-item-text"></p>
+        <small class="todo-item-date"></small>
+    </div>
+</template>
+<script>
+    (function () {
+        var componentDocument = document.currentScript.ownerDocument;
+
+        window.TodoItem = document.registerElement('todo-item', {
+            prototype: Object.create(HTMLElement.prototype, {
+                createdCallback: {
+                    value: function () {
+                        var root = this.createShadowRoot();
+                        var template = componentDocument.querySelector('#todoItemTemplate');
+                        var clone = document.importNode(template.content, true);
+                        root.appendChild(clone);
+                    }
+                },
+                setModel: {
+                    value: function (model) {
+                        this.model = model;
+                        this.render();
+                    }
+                },
+                render: {
+                    value: function(){
+                        this.shadowRoot.querySelector("input[type=checkbox]").checked = this.model.isDone;
+                        this.shadowRoot.querySelector(".todo-item-text").textContent = this.model.text;
+                        this.shadowRoot.querySelector(".todo-item-date").textContent = this.model.date.toString();
+                    }
+                }
+            })
+        });
+    })();
+
+</script>

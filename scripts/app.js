@@ -1,13 +1,6 @@
 (function(Collection, ToDo, Storage){
     'use strict';
 
-    var todoList = new Collection("example", ToDo, new Storage());
-
-    var todo = new ToDo();
-    todo.text = "testing!";
-    todoList.add(todo)
-
-    setTimeout(function(){
-        todo.save();
-    }, 1000);
+    var todoList = new Collection("example", ToDo, Storage);
+    document.querySelector("todo-list").setModel(todoList);
 })(Collection, ToDo, Storage);

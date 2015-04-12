@@ -1,0 +1,100 @@
+<link rel="import" href="./todo-item.html"/>
+
+<template id="todoListTemplate">
+    <h2>Todo Items:</h2>
+
+    <form>
+        <input type="text" id="newItem" placeholder="Enter new item"/>
+    </form>
+    <div id="items"></div>
+</template>
+
+<script>
+    (function () {
+        var componentDocument = document.currentScript.ownerDocument;
+
+        var TodoList = document.registerElement('todo-list', {
+            prototype: Object.create(HTMLElement.prototype, {
+                createdCallback: {
+                    value: function () {
+                        var root = this.shadowRoot = this.createShadowRoot();
+                        var template = componentDocument.querySelector('#todoListTemplate');
+                        var clone = document.importNode(template.content, true);
+                        root.appendChild(clone);
+
+                    }
+                },
+                attachedCallback: {
+                    value: function () {
+                        this.shadowRoot.querySelector("form").addEventListener("submit", this.addItem.bind(this))
+
+                    }
+                },
+                attributeChangedCallback: {
+                    value: function (attribute, oldValue, newValue) {
+                        if (attribute === "model") {
+                            this.model = getModel(this);
+                            this.render();
+                        }
+                    }
+                },
+                addItem: {
+                    value: function (e) {
+                        e.preventDefault();
+                        var textInput = this.shadowRoot.querySelector("#newItem");
+                        var itemText = textInput.value;
+
+                        if (!itemText)
+                            return;
+
+                        var todo = new ToDo({
+                            text: itemText
+                        });
+
+                        this.model.add(todo, true);
+                        this.shadowRoot.querySelector("#items").insertBefore(this.getItemElement(todo), this.shadowRoot.querySelector("todo-item"));
+                        textInput.value = "";
+                    }
+                },
+                setModel: {
+                    value: function (model) {
+                        this.model = model;
+                        this.render();
+                    }
+                },
+                getItemElement: {
+                    value: function (item) {
+                        var itemElement = new TodoItem;
+                        itemElement.setModel(item);
+                        return itemElement;
+                    }
+                },
+                render: {
+                    value: function () {
+                        var itemsEl = this.shadowRoot.querySelector("#items"),
+                                model = this.model,
+                                todoList = this;
+
+                        if (!model || !model.items.length)
+                            itemsEl.innerHTML = "";
+                        else {
+                            var itemsFragment = document.createDocumentFragment();
+                            model.items.forEach(function (item) {
+                                itemsFragment.appendChild(todoList.getItemElement(item));
+                            });
+                            itemsEl.appendChild(itemsFragment);
+                        }
+                    }
+                }
+            })
+        });
+
+        function getModel(todoList) {
+            var modelPath = todoList.getAttribute("model");
+            if (modelPath)
+                return window[modelPath];
+
+            return null;
+        }
+    })();
+</script>
